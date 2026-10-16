@@ -1,38 +1,27 @@
-CSRCS=$(wildcard *.c)
-COBJS=$(patsubst %.c,%.o,$(CSRCS))
-EXEC=$(patsubst %.c,%, $(word 1, $(CSRCS)))
+CFLAGS = -std=c99 -g -Wall -Wextra -Werror -pedantic
+LDLIBS = -lm
 
-CFLAGS=-std=c99 -g -Wall -pedantic
-LDFLAGS=-lm
+all: armstrong libarmstrong.so
 
-all: build test
+armstrong: armstrong.c
+	$(CC) $(CFLAGS) $< -o $@ $(LDLIBS)
 
-build: $(EXEC)
+# Loaded by the unit tests to call is_armstrong directly.
+libarmstrong.so: armstrong.c
+	$(CC) $(CFLAGS) -shared -fPIC $< -o $@ $(LDLIBS)
 
-ifeq (, $(shell which colordiff))
-DIFF=diff
-else
-DIFF=colordiff
-endif
+# Run by the Quiz platform before the tests: a fresh build without -Werror,
+# so a warning does not keep the program from being tested.
+prepare:
+	$(MAKE) --always-make all CFLAGS="$(filter-out -Werror,$(CFLAGS))"
 
-lib: lib$(EXEC).so
+test: all
+	pytest -vv
 
-lib$(EXEC).so: $(CSRCS)
-	$(CC) -shared -o $@ $^ -fPIC
-
-format: $(CSRCS)
-	clang-format $< | $(DIFF) $< -
-
-%: %.c
-	@echo -e '\e[1;34mCompilation...\e[m'
-	$(CC) $(CFLAGS) $? -o $@ $(LDFLAGS)
-
-test: lib $(EXEC)
-	@echo -e '\e[1;34mRun tests...\e[m'
-	./test.py
+format:
+	clang-format --dry-run --Werror armstrong.c
 
 clean:
-	@echo -e '\e[1;34mCleaning...\e[m'
-	$(RM) $(EXEC) *.o a.out lib$(EXEC).so
+	$(RM) armstrong libarmstrong.so report.xml
 
-.PHONY: test all format build lib
+.PHONY: all prepare test format clean

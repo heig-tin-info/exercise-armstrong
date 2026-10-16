@@ -1,102 +1,130 @@
-# Critères d'évaluation du travail pratique
+# Critères d'évaluation du laboratoire, notés par la plateforme Quiz (ADR-106).
 ---
-details:
-  delivery:
-    description: Livraison du code
-    on-time: 10
-      description: Le référentiel de projet est livré avant l'échéance
-  binary:
-    description: Exécutable binaire
+schema_version: 2
+
+grading:
+  context: |
+    Tu es un correcteur impartial et bienveillant d'un cours d'introduction au
+    C, en première année. Le cahier des charges est README.md : c'est lui qui
+    fait foi. Les tests (tests/test_is_armstrong.py et tests/test_cli.py)
+    notent déjà le comportement du programme : ne retire pas une seconde fois
+    des points pour un comportement qu'un test sanctionne, juge ici la
+    conception et la qualité du code. En cas de doute légitime, accorde le
+    bénéfice du doute. Justifie chaque point en une phrase, en français,
+    adressée à l'étudiant (vouvoiement).
+  student:
+    level: 1ère année, HEIG-VD
+    knows:
+      - printf, make et gcc
+      - variables, conditions et boucles
+    learning:
+      - fonctions et type bool
+      - argc / argv, scanf / sscanf et les codes de retour
+      - arithmétique entière et dépassement de capacité
+  sources:
+    - README.md
+    - armstrong.c
+    - tests/*.py
+
+criteria:
+  tests:
+    description: Comportement du programme
     all-tests-passed:
-      description: Tous les tests fonctionnels ont passés avec succès.
-      points: 20
-  build:
-    description: Compilation du code
-    with-no-errors:
-      description: Aucune erreur de compilation
-      points: 2
-    with-no-warnings:
-      description: Aucune alerte de compilation
-      points: 2
-    c99-compliant:
-      description: Le code est compatible avec le standard C99
-      points: 1
+      description: Les tests unitaires et fonctionnels passent
+      awarded_points: 0
+      max_points: 10
+  algorithm:
+    description: Algorithme
+    integer-arithmetic:
+      description: Le calcul est fait en entiers, sans dépassement de capacité
+      awarded_points: 0
+      max_points: 2
+      prompt: >
+        Accorde 2 si is_armstrong compte les chiffres et calcule les
+        puissances en arithmétique entière (divisions et modulo par 10,
+        multiplications), et si la somme est accumulée dans un type assez
+        large (long long, ou une sortie anticipée dès que la somme dépasse le
+        nombre) pour qu'un nombre de 10 chiffres ne la fasse pas déborder.
+        Accorde 1 si le calcul passe par pow() ou par une conversion en
+        chaîne mais reste correct. Sinon 0.
+    pure-function:
+      description: La fonction is_armstrong ne fait que le calcul
+      awarded_points: 0
+      max_points: 1
+      prompt: >
+        Accorde 1 si is_armstrong a le prototype bool is_armstrong(int number),
+        ne lit ni n'affiche rien et ne dépend d'aucune variable globale. Sinon 0.
+  program:
+    description: Structure du programme
+    input:
+      description: L'entrée est lue et validée au même endroit, en argument ou sur stdin
+      awarded_points: 0
+      max_points: 2
+      prompt: >
+        Accorde 2 si le programme lit le nombre depuis argv[1] ou, en son
+        absence, depuis l'entrée standard, en vérifiant la valeur de retour de
+        sscanf / scanf (ou strtol) et en refusant les arguments surnuméraires,
+        sans dupliquer la logique de validation entre les deux cas. Accorde 1
+        si l'entrée est validée mais que la logique est recopiée. Sinon 0.
+    exit-status:
+      description: Les codes de retour sont clairs
+      awarded_points: 0
+      max_points: 1
+      prompt: >
+        Accorde 1 si main retourne 0, 1 ou 2 de façon lisible (return depuis
+        main, éventuellement des constantes nommées), sans appel à exit
+        dispersé dans le code. Sinon 0.
   code:
-    description: Code source
-    minimalism:
-      description:
-        - Le code est minimaliste et optimum
-      points: 2
-    header:
-      description:
-        - Une explication succinte du programme figure en tête de programme
-      points: 2
-    comments:
-      description:
-        - Les commentaires sont utiles
-        - Les commentaires expliquent pourquoi et non comment
-        - Les commentaires ne sont pas surnuméraires
-      points: 3
-    flow-control:
-      description:
-        - Bon choix de structure de données
-        - Bonne utilisation des structures de données
-      points: 3
-    consistency:
-      description: Les conventions d'édition choisies sont cohérentes et harmonieuses dans tout le code
-      points: 1
-    variables:
-      description:
-        - Choix des noms approprié
-        - Scope des variable adapté
-        - Les types de données sont convenablement choisis
-      points: 2
-    no-dead-code:
-      description: Il n'y a pas de code mort, non exécuté ou inutile
-      points: 1
-    dry:
-      description: 'Do not Repeat Yourself', le code ne contient pas de répétitions
-      points: 5
+    description: Qualité du code
     english:
-      description: Un effort est mis sur l'utilisation de l'anglais
-      points: 1
-    indentation:
-      consistency:
-        description: L'indentation du code est cohérente et valide
-        points: 2
-      clang-format:
-        description: L'indentation suit les règles de clang-format
-        points: 1
+      description: Le code est écrit en anglais
+      awarded_points: 0
+      max_points: 1
+      prompt: >
+        Accorde 1 si les identifiants et les commentaires sont en anglais. Les
+        messages affichés à l'utilisateur, imposés en français par le cahier
+        des charges, ne comptent pas. Sinon 0.
+    readability:
+      description: Le code est lisible, les noms sont explicites (noté par l'enseignant)
+      awarded_points: 0
+      max_points: 1
+    no-dead-code:
+      description: Il n'y a pas de code mort ou mis en commentaire
+      awarded_points: 0
+      max_points: -1
+      prompt: >
+        Retire 1 s'il reste du code mis en commentaire, désactivé par #if 0,
+        les TODO du squelette ou l'implémentation aléatoire (rand) de la
+        deuxième phase. Sinon 0.
+    no-repetition:
+      description: Pas de répétition dans le code
+      awarded_points: 0
+      max_points: -1
+      prompt: >
+        Retire 1 si un même traitement est écrit deux fois, par exemple deux
+        printf presque identiques pour les deux résultats, ou le nombre de
+        chiffres recalculé à chaque chiffre. Sinon 0.
   commit:
-    description: Commits sous Git
-    segmentation:
-      description: Les commits sont bien partagés en blocs fonctionnels
-      points: 1
-    good-comments:
-      description: Les commentaires de commit sont concis, précis et cohérents.
-      points: 1
-  work:
-    description: Cahier des charges
-    algorithm:
-      description: Algorithme valide
-      points: 4
-    version:
-      description: Le programme fonctionne avec '--version'
-      points: 3
-    verbose:
-      description: Le programme fonctionne avec '--verbose' ou '-v'
-      points: 3
+    description: Git
+    history:
+      description: Le travail est committé sous l'identité de l'étudiant
+      awarded_points: 0
+      max_points: 1
+    messages:
+      description: Les messages de commit sont concis et précis (noté par l'enseignant)
+      awarded_points: 0
+      max_points: 1
   bonus:
     description: Bonus
-    creativity:
-      description: L'étudiant a apporté de la créativité au projet.
-      bonus: 1
-    proactivity:
-      description: L'étudiant a démontré une certaine proactivité en allant plus loin que le cahier des charges initial.
-      bonus: 1
-    rigourous:
-      description: L'étudiant s'est montré rigoureux avec la donnée, son travail et le résultat obtenu.
-      bonus: 1
-    references:
-      description: Des références sont faites sur les sources des données extérieures.
-      bonus: 1
+    flowchart:
+      description: Le diagramme de flux de la première phase est versionné dans le dépôt
+      awarded_points: 0
+      bonus_points: 1
+    help:
+      description: Le programme dispose d'une aide (--help)
+      awarded_points: 0
+      bonus_points: 1
+      prompt: >
+        Accorde 1 si --help (ou -h) affiche l'usage sur la sortie standard et
+        termine avec le code 0, sans casser la lecture d'un nombre négatif en
+        argument. Sinon 0.

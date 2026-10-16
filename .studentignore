@@ -1,0 +1,4 @@
+# Teacher-only paths, dropped when this repository becomes the student
+# handout (the student/ overlay is applied first).
+student/
+scripts/

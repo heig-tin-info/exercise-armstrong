@@ -1,24 +1,59 @@
-#include <math.h>
-#include <string.h>
+/**
+ * armstrong: tell whether a number is an Armstrong (narcissistic) number,
+ * a number equal to the sum of its digits each raised to the number of digits.
+ *
+ * Usage:  ./armstrong [NUMBER]   (NUMBER is read from stdin when omitted)
+ * Exit:   0 if NUMBER is an Armstrong number, 1 if not, 2 on invalid input.
+ */
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 
-bool is_armstrong(int number) {
+bool is_armstrong(int number)
+{
+    if (number < 0) {
+        return false;
+    }
+
+    int digits = 0;
+    for (int n = number; n > 0; n /= 10) {
+        digits++;
+    }
+
+    // Ten nines to the tenth power overflow an int: sum in a wider type.
+    long long sum = 0;
+    for (int n = number; n > 0; n /= 10) {
+        long long power = 1;
+        for (int i = 0; i < digits; i++) {
+            power *= n % 10;
+        }
+        sum += power;
+    }
+    return sum == number;
+}
+
+// The trailing " %c" matches only if something follows the integer.
+static bool read_number(int argc, char *argv[], int *number)
+{
+    char extra;
+    if (argc == 1) {
+        return scanf("%d %c", number, &extra) == 1;
+    }
+    if (argc == 2) {
+        return sscanf(argv[1], "%d %c", number, &extra) == 1;
+    }
     return false;
 }
 
-void help(void) {
-    printf("Usage: armstrong [options] [number]\n\n");
-    printf("Check whether or not a number is an Armstrong number.\n");
-    printf("Returns 0 for yes and 1 for no.\n\n");
-    printf("  --version       display version and quit\n");
-    printf("  --verbose, -v   display result on stdout\n");
-}
+int main(int argc, char *argv[])
+{
+    int number;
+    if (!read_number(argc, argv, &number)) {
+        fprintf(stderr, "usage: %s [NUMBER]\n", argv[0]);
+        return 2;
+    }
 
-int main(int argc, char *argv[]) {
-
-    bool result = is_armstrong(153);
-
-    return !result;
+    bool armstrong = is_armstrong(number);
+    printf("Le nombre %d %s un nombre d'Armstrong.\n", number,
+           armstrong ? "est" : "n'est pas");
+    return armstrong ? 0 : 1;
 }
